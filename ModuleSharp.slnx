@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Contract/Contract.csproj" />
+    <Project Path="src/WebHost/WebHost.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/">
+    <Project Path="src/Modules/ModuleA/ModuleA.csproj" />
+    <Project Path="src/Modules/ModuleB/ModuleB.csproj" />
+  </Folder>
+</Solution>
