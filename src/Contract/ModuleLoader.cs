@@ -10,6 +10,10 @@ namespace Contract;
 
 public static class ModuleLoader
 {
+    private static readonly string[] CommonSettingFiles = ["appsettings.json"];
+
+    // ========== PUBLIC ==========
+
     public static void AddHostConfigureServices(this WebApplicationBuilder builder, string? rootPath = null)
     {
         builder.Services.AddEndpointsApiExplorer();
@@ -17,15 +21,15 @@ public static class ModuleLoader
         builder.Services.AddCors();
         builder.Services.AddAuthentication();
         builder.Services.AddAuthorization();
-        builder.Services.AddControllers();
-        builder.Services.Configure<RouteOptions>(options =>
-        {
-            options.LowercaseUrls = true; // optional
-        });
 
         builder.Services.AddControllers(options =>
         {
             options.Conventions.Insert(0, new GlobalRoutePrefixConvention("api/module"));
+        });
+
+        builder.Services.Configure<RouteOptions>(options =>
+        {
+            options.LowercaseUrls = true;
         });
 
         builder.AddModuleServices(rootPath);
@@ -35,14 +39,18 @@ public static class ModuleLoader
     {
         app.UseSwagger();
         app.UseSwaggerUI();
+
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseCors();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
+
         app.MapControllers();
-        MapEndpoints(app);
+        app.MapModuleEndpoints();
+
+        // Fallback
         app.MapFallback(async context =>
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -50,12 +58,38 @@ public static class ModuleLoader
         });
     }
 
-    private static void AddModuleServices(
-        this WebApplicationBuilder builder,
-        string? rootPath = null)
+    // ========== PRIVATE ==========
+
+    private static void AddModuleServices(this WebApplicationBuilder builder, string? rootPath)
     {
-        var assemblies = new List<Assembly>();
-        assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies());
+        var assemblies = LoadAssemblies(rootPath);
+
+        var moduleTypes = FindModuleTypes(assemblies);
+
+        AddCommonSettings(builder);
+
+        ConfigureModuleServices(builder, moduleTypes);
+
+        builder.Services.AddSingleton(new ModuleType(moduleTypes));
+    }
+
+    private static void MapModuleEndpoints(this WebApplication app)
+    {
+        var moduleType = app.Services.GetRequiredService<ModuleType>();
+        foreach (var type in moduleType.Types)
+        {
+            var module = (IModule)ActivatorUtilities.CreateInstance(app.Services, type);
+            var group = app.MapGroup($"/api/{module.EndpointPrefix}")
+                           .WithTags(module.EndpointPrefix);
+
+            group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!");
+            module.ConfigureEndpoints(group);
+        }
+    }
+
+    private static List<Assembly> LoadAssemblies(string? rootPath)
+    {
+        var assemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies());
 
         if (!string.IsNullOrEmpty(rootPath))
         {
@@ -66,12 +100,16 @@ public static class ModuleLoader
                     var asm = AssemblyLoadContext.Default.LoadFromAssemblyPath(Path.GetFullPath(dll));
                     assemblies.Add(asm);
                 }
-                catch { }
+                catch { /* ignore load errors */ }
             }
         }
 
-        var moduleTypes = assemblies
-            .Distinct()
+        return assemblies.Distinct().ToList();
+    }
+
+    private static List<Type> FindModuleTypes(List<Assembly> assemblies)
+    {
+        return assemblies
             .SelectMany(a =>
             {
                 try { return a.GetTypes(); }
@@ -79,38 +117,39 @@ public static class ModuleLoader
             })
             .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
             .ToList();
+    }
 
+    private static void AddCommonSettings(WebApplicationBuilder builder)
+    {
+        foreach (var settingFile in CommonSettingFiles)
+        {
+            builder.Configuration.AddJsonFile(settingFile, optional: false, reloadOnChange: true);
+        }
+    }
+
+    private static void ConfigureModuleServices(WebApplicationBuilder builder, List<Type> moduleTypes)
+    {
         foreach (var type in moduleTypes)
         {
             var module = (IModule)Activator.CreateInstance(type)!;
             var moduleAssembly = type.Assembly;
             var modulePath = Path.GetDirectoryName(moduleAssembly.Location)!;
+
             foreach (var moduleSettingFile in module.ModuleSettingFiles)
             {
                 var jsonPath = Path.Combine(modulePath, moduleSettingFile);
                 builder.Configuration.AddJsonFile(jsonPath, optional: false, reloadOnChange: true);
             }
+
             module.ConfigureServices(builder);
         }
-
-        builder.Services.AddSingleton(new ModuleType(moduleTypes));
     }
 
-    private static IEndpointRouteBuilder MapEndpoints(this WebApplication app)
-    {
-        var moduleType = app.Services.GetRequiredService<ModuleType>();
-        foreach (var type in moduleType.Types)
-        {
-            var module = (IModule)ActivatorUtilities.CreateInstance(app.Services, type);
-            var group = app.MapGroup($"/api/{module.EndpointPrefix}").WithTags(module.EndpointPrefix);
-            group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!");
-            module.ConfigureEndpoints(group);
-        }
-        return app;
-    }
+    // ========== INNER CLASS ==========
 
-    private sealed class ModuleType(List<Type> types)
+    private sealed class ModuleType
     {
-        public List<Type> Types { get; private set; } = types;
+        public List<Type> Types { get; }
+        public ModuleType(List<Type> types) => Types = types;
     }
 }
