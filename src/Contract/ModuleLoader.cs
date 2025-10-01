@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -12,8 +14,6 @@ public static class ModuleLoader
 {
     private static readonly string[] CommonSettingFiles = ["appsettings.json"];
 
-    // ========== PUBLIC ==========
-
     public static void AddHostConfigureServices(this WebApplicationBuilder builder, string? rootPath = null)
     {
         builder.Services.AddEndpointsApiExplorer();
@@ -21,18 +21,18 @@ public static class ModuleLoader
         builder.Services.AddCors();
         builder.Services.AddAuthentication();
         builder.Services.AddAuthorization();
-
-        builder.Services.AddControllers(options =>
-        {
-            options.Conventions.Insert(0, new GlobalRoutePrefixConvention("api/module"));
-        });
-
+        builder.Services.AddControllers();
         builder.Services.Configure<RouteOptions>(options =>
         {
             options.LowercaseUrls = true;
         });
 
-        builder.AddModuleServices(rootPath);
+        var moduleTypes = builder.AddModuleServices(rootPath);
+
+        builder.Services.AddTransient<IConfigureOptions<MvcOptions>>((serviceProvider) =>
+        {
+            return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleTypes);
+        });
     }
 
     public static void UseHostConfigure(this WebApplication app)
@@ -50,7 +50,6 @@ public static class ModuleLoader
         app.MapControllers();
         app.MapModuleEndpoints();
 
-        // Fallback
         app.MapFallback(async context =>
         {
             context.Response.StatusCode = StatusCodes.Status404NotFound;
@@ -58,9 +57,7 @@ public static class ModuleLoader
         });
     }
 
-    // ========== PRIVATE ==========
-
-    private static void AddModuleServices(this WebApplicationBuilder builder, string? rootPath)
+    private static List<Type> AddModuleServices(this WebApplicationBuilder builder, string? rootPath)
     {
         var assemblies = LoadAssemblies(rootPath);
 
@@ -71,6 +68,8 @@ public static class ModuleLoader
         ConfigureModuleServices(builder, moduleTypes);
 
         builder.Services.AddSingleton(new ModuleType(moduleTypes));
+
+        return moduleTypes;
     }
 
     private static void MapModuleEndpoints(this WebApplication app)
@@ -83,7 +82,18 @@ public static class ModuleLoader
                            .WithTags(module.EndpointPrefix);
 
             group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!");
-            module.ConfigureEndpoints(group);
+
+            var assemblyModule = type.Assembly;
+
+            var endpointTypes = assemblyModule.GetTypes()
+                .Where(t => typeof(IEndpoint).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
+                .ToList();
+
+            foreach (var endpointType in endpointTypes)
+            {
+                var endpointInstance = (IEndpoint)Activator.CreateInstance(endpointType)!;
+                endpointInstance.MapEndpoint(group);
+            }
         }
     }
 
@@ -144,8 +154,6 @@ public static class ModuleLoader
             module.ConfigureServices(builder);
         }
     }
-
-    // ========== INNER CLASS ==========
 
     private sealed class ModuleType
     {
