@@ -12,9 +12,7 @@ namespace Contract;
 
 public static class ModuleLoader
 {
-    private static readonly string[] CommonSettingFiles = ["appsettings.json"];
-
-    public static void AddHostConfigureServices(this WebApplicationBuilder builder, string? rootPath = null)
+    public static void AddHostConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -27,7 +25,7 @@ public static class ModuleLoader
             options.LowercaseUrls = true;
         });
 
-        var moduleTypes = builder.AddModuleServices(rootPath);
+        var moduleTypes = builder.AddModuleServices();
 
         builder.Services.AddTransient<IConfigureOptions<MvcOptions>>((serviceProvider) =>
         {
@@ -57,13 +55,13 @@ public static class ModuleLoader
         });
     }
 
-    private static List<Type> AddModuleServices(this WebApplicationBuilder builder, string? rootPath)
+    private static List<Type> AddModuleServices(this WebApplicationBuilder builder)
     {
+        var rootPath = AppContext.BaseDirectory;
+
         var assemblies = LoadAssemblies(rootPath);
 
         var moduleTypes = FindModuleTypes(assemblies);
-
-        AddCommonSettings(builder);
 
         ConfigureModuleServices(builder, moduleTypes);
 
@@ -127,14 +125,6 @@ public static class ModuleLoader
             })
             .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
             .ToList();
-    }
-
-    private static void AddCommonSettings(WebApplicationBuilder builder)
-    {
-        foreach (var settingFile in CommonSettingFiles)
-        {
-            builder.Configuration.AddJsonFile(settingFile, optional: false, reloadOnChange: true);
-        }
     }
 
     private static void ConfigureModuleServices(WebApplicationBuilder builder, List<Type> moduleTypes)

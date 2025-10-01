@@ -6,9 +6,8 @@ public static class Startup
 {
     public static async Task Run(string[] args)
     {
-        string? rootPath = args.FirstOrDefault();
         var builder = WebApplication.CreateBuilder(args);
-        builder.AddHostConfigureServices(rootPath: rootPath);
+        builder.AddHostConfigureServices();
         var app = builder.Build();
         app.UseHostConfigure();
         await app.RunAsync();

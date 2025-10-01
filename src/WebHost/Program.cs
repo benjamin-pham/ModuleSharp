@@ -1,1 +1,1 @@
-await Startup.Run([AppContext.BaseDirectory, .. args]);
+await Startup.Run(args);
