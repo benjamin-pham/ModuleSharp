@@ -79,7 +79,7 @@ public static class ModuleLoader
             var group = app.MapGroup($"/api/{module.EndpointPrefix}")
                            .WithTags(module.EndpointPrefix);
 
-            group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!");
+            group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!").WithTags("ping module api");
 
             var assemblyModule = type.Assembly;
 

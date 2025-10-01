@@ -1,12 +1,12 @@
 ﻿namespace ModuleB;
 
-public class ModuleRegister : BaseModule
+public class ModuleRegister : IModule
 {
-    public override string EndpointPrefix => "module-b";
+    public string EndpointPrefix => "module-b";
 
-    public override string[] ModuleSettingFiles => ["appsettings.ModuleB.json"];
+    public string[] ModuleSettingFiles => ["appsettings.ModuleB.json"];
 
-    public override void ConfigureServices(WebApplicationBuilder builder)
+    public void ConfigureServices(WebApplicationBuilder builder)
     {
 
     }

@@ -1,13 +1,13 @@
 ﻿
 namespace WebHost;
 
-public class ModuleRegister : BaseModule
+public class ModuleRegister : IModule
 {
-    public override string EndpointPrefix => "web-host";
+    public string EndpointPrefix => "web-host";
 
-    public override string[] ModuleSettingFiles => ["appsettings.json"];
+    public string[] ModuleSettingFiles => ["appsettings.json"];
 
-    public override void ConfigureServices(WebApplicationBuilder builder)
+    public void ConfigureServices(WebApplicationBuilder builder)
     {
 
     }
