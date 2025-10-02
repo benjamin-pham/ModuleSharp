@@ -11,6 +11,6 @@ public class ModuleRegister : IModule
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<CatalogDbContext>();
+
     }
 }

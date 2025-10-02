@@ -8,6 +8,7 @@
         <PackageVersion Include="Serilog.AspNetCore" Version="9.0.0" />
         <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
         <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
+        <PackageVersion Include="EFCore.NamingConventions" Version="9.0.0" />
     </ItemGroup>
 <!--test project-->
     <ItemGroup>

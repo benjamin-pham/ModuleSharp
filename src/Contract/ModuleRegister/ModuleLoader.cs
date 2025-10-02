@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -33,7 +34,7 @@ public static class ModuleLoader
             return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleTypes);
         });
 
-        builder.AddModuleDbContext(moduleTypes);
+        builder.Services.AddApplicationDbContexts(builder.Configuration, moduleTypes);
     }
 
     public static void UseHostConfigure(this WebApplication app)
@@ -151,38 +152,43 @@ public static class ModuleLoader
             module.ConfigureServices(builder);
         }
     }
-    private static void AddModuleDbContext(this WebApplicationBuilder builder, List<Type> moduleTypes)
+
+    public static IServiceCollection AddApplicationDbContexts(
+        this IServiceCollection services,
+        IConfiguration configuration,
+        List<Type> moduleTypes)
     {
-        var dbContextTypes = moduleTypes.Select(x=>x.Assembly).SelectMany(x=>x.GetTypes())
-        .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
-        .Where(t => InheritsFromGenericBase(t, typeof(ApplicationDbContext<>)));
+        var dbContextTypes = moduleTypes.Select(x => x.Assembly).SelectMany(x => x.GetTypes())
+            .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
+            .Where(t => t.BaseType is { IsGenericType: true } &&
+                        t.BaseType.GetGenericTypeDefinition() == typeof(ApplicationDbContext<>))
+            .ToList();
 
         foreach (var dbContextType in dbContextTypes)
         {
-            // Lấy method AddDbContext<TContext>
-            var method = typeof(EntityFrameworkServiceCollectionExtensions)
+            var addDbContextMethod = typeof(EntityFrameworkServiceCollectionExtensions)
                 .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .First(m => m.Name == "AddDbContext" && m.IsGenericMethod && m.GetParameters().Length >= 1);
+                .First(m => m.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext)
+                            && m.IsGenericMethodDefinition
+                            && m.GetParameters().Any(p =>
+                                p.ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)));
 
-            // Make generic method với dbContextType
-            var generic = method.MakeGenericMethod(dbContextType);
+            var genericMethod = addDbContextMethod.MakeGenericMethod(dbContextType);
 
-            // Gọi AddDbContext<TContext>(IServiceCollection)
-            generic.Invoke(null, new object?[] { builder.Services, null, ServiceLifetime.Scoped, ServiceLifetime.Scoped });
+            genericMethod.Invoke(
+                null,
+                new object?[]
+                {
+                    services,
+                    Postgres.StandardOptions(configuration),
+                    null,
+                    null
+                });
         }
-    }
-    public static bool InheritsFromGenericBase(Type type, Type genericBase)
-    {
-        while (type != null && type != typeof(object))
-        {
-            var cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
-            if (cur == genericBase)
-                return true;
 
-            type = type.BaseType!;
-        }
-        return false;
+        return services;
     }
+
     private sealed class ModuleType
     {
         public List<Type> Types { get; }

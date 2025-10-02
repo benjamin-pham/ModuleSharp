@@ -6,4 +6,8 @@ namespace Module.Catalog.Infrastructure.Database;
 public class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     : ApplicationDbContext<CatalogDbContext>(options)
 {
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.HasDefaultSchema("catalog");
+    }
 }

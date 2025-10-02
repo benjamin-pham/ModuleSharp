@@ -1,4 +1,5 @@
-﻿using Contract.ModuleRegister;
+﻿using Contract.Infrastructure.Database;
+using Contract.ModuleRegister;
 using Module.ShoppingCart.Infrastructure.Database;
 
 namespace Module.ShoppingCart;
@@ -11,6 +12,6 @@ public class ModuleRegister : IModule
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<ShoppingCartDbContext>();
+        builder.Services.AddDbContext<ShoppingCartDbContext>(Postgres.StandardOptions(builder.Configuration));
     }
 }
