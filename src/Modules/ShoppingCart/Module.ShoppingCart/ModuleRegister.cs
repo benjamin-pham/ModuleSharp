@@ -12,6 +12,6 @@ public class ModuleRegister : IModule
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<ShoppingCartDbContext>(Postgres.StandardOptions(builder.Configuration));
+
     }
 }
