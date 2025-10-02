@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Contract.Infrastructure.Database;
 
-public class BaseRepository<TEntity, TKey> : IRepository<TEntity, TKey> where TEntity : Entity<TKey>
+public class BaseRepository<TEntity, TKey, TDbContext> : IRepository<TEntity, TKey> where TEntity : Entity<TKey> where TDbContext : DbContext
 {
-    private readonly DbContext _dbContext;
+    private readonly TDbContext _dbContext;
 
-    public BaseRepository(DbContext dbContext)
+    public BaseRepository(TDbContext dbContext)
     {
         _dbContext = dbContext;
     }
