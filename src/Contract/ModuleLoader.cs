@@ -76,8 +76,12 @@ public static class ModuleLoader
         foreach (var type in moduleType.Types)
         {
             var module = (IModule)ActivatorUtilities.CreateInstance(app.Services, type);
-            var group = app.MapGroup($"/api/{module.EndpointPrefix}")
-                           .WithTags(module.EndpointPrefix);
+            var url = $"/api";
+            if (!string.IsNullOrEmpty(module.EndpointPrefix))
+            {
+                url += $"/{module.EndpointPrefix}";
+            }
+            var group = app.MapGroup(url).WithTags(module.EndpointPrefix);
 
             group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!").WithTags("ping module api");
 
