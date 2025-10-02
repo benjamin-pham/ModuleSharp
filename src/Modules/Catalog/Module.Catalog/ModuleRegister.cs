@@ -1,4 +1,5 @@
 ﻿using Contract.ModuleRegister;
+using Module.Catalog.Abstractions;
 using Module.Catalog.Infrastructure.Database;
 
 namespace Module.Catalog;

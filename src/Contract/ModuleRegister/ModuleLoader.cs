@@ -1,4 +1,5 @@
-﻿using Contract.Infrastructure.Database;
+﻿using Contract.Abstractions;
+using Contract.Infrastructure.Database;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -184,6 +185,16 @@ public static class ModuleLoader
                     null,
                     null
                 });
+
+            var uowInterfaces = dbContextType.GetInterfaces()
+                .Where(i => i != typeof(IBaseUnitOfWork) &&
+                            typeof(IBaseUnitOfWork).IsAssignableFrom(i))
+                .ToList();
+
+            foreach (var uowInterface in uowInterfaces)
+            {
+                services.AddScoped(uowInterface, sp => sp.GetRequiredService(dbContextType));
+            }
         }
 
         return services;
