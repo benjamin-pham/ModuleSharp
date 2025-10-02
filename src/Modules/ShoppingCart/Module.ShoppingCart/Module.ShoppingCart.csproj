@@ -11,11 +11,7 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.20" />
-  </ItemGroup>
-
+    
   <ItemGroup>
     <ProjectReference Include="..\..\..\Contract\Contract.csproj" />
   </ItemGroup>
