@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Contract.Infrastructure.Database;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -31,6 +32,8 @@ public static class ModuleLoader
         {
             return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleTypes);
         });
+
+        builder.AddModuleDbContext(moduleTypes);
     }
 
     public static void UseHostConfigure(this WebApplication app)
@@ -148,7 +151,38 @@ public static class ModuleLoader
             module.ConfigureServices(builder);
         }
     }
+    private static void AddModuleDbContext(this WebApplicationBuilder builder, List<Type> moduleTypes)
+    {
+        var dbContextTypes = moduleTypes.Select(x=>x.Assembly).SelectMany(x=>x.GetTypes())
+        .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
+        .Where(t => InheritsFromGenericBase(t, typeof(ApplicationDbContext<>)));
 
+        foreach (var dbContextType in dbContextTypes)
+        {
+            // Lấy method AddDbContext<TContext>
+            var method = typeof(EntityFrameworkServiceCollectionExtensions)
+                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                .First(m => m.Name == "AddDbContext" && m.IsGenericMethod && m.GetParameters().Length >= 1);
+
+            // Make generic method với dbContextType
+            var generic = method.MakeGenericMethod(dbContextType);
+
+            // Gọi AddDbContext<TContext>(IServiceCollection)
+            generic.Invoke(null, new object?[] { builder.Services, null, ServiceLifetime.Scoped, ServiceLifetime.Scoped });
+        }
+    }
+    public static bool InheritsFromGenericBase(Type type, Type genericBase)
+    {
+        while (type != null && type != typeof(object))
+        {
+            var cur = type.IsGenericType ? type.GetGenericTypeDefinition() : type;
+            if (cur == genericBase)
+                return true;
+
+            type = type.BaseType!;
+        }
+        return false;
+    }
     private sealed class ModuleType
     {
         public List<Type> Types { get; }

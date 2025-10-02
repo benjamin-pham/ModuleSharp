@@ -1,4 +1,5 @@
 ﻿using Contract.ModuleRegister;
+using Module.ShoppingCart.Infrastructure.Database;
 
 namespace Module.ShoppingCart;
 
@@ -10,6 +11,6 @@ public class ModuleRegister : IModule
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
-
+        builder.Services.AddDbContext<ShoppingCartDbContext>();
     }
 }

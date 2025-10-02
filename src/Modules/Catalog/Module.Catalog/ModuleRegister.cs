@@ -1,4 +1,5 @@
 ﻿using Contract.ModuleRegister;
+using Module.Catalog.Infrastructure.Database;
 
 namespace Module.Catalog;
 
@@ -10,6 +11,6 @@ public class ModuleRegister : IModule
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
-
+        builder.Services.AddDbContext<CatalogDbContext>();
     }
 }
