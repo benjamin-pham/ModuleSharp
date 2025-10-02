@@ -1,10 +1,7 @@
-﻿using Contract.Abstractions;
-using Contract.Infrastructure.Database;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -34,10 +31,6 @@ public static class ModuleLoader
         {
             return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleTypes);
         });
-
-        builder.Services.AddApplicationDbContexts(builder.Configuration, moduleTypes);
-
-        builder.Services.AddWithAttributes(moduleTypes);
     }
 
     public static void UseHostConfigure(this WebApplication app)
@@ -73,6 +66,10 @@ public static class ModuleLoader
         ConfigureModuleServices(builder, moduleTypes);
 
         builder.Services.AddSingleton(new ModuleType(moduleTypes));
+
+        builder.Services.AddApplicationDbContexts(builder.Configuration, moduleTypes);
+
+        builder.Services.AddWithAttributes(moduleTypes);
 
         return moduleTypes;
     }
@@ -154,52 +151,6 @@ public static class ModuleLoader
 
             module.ConfigureServices(builder);
         }
-    }
-
-    public static IServiceCollection AddApplicationDbContexts(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        List<Type> moduleTypes)
-    {
-        var dbContextTypes = moduleTypes.Select(x => x.Assembly).SelectMany(x => x.GetTypes())
-            .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
-            .Where(t => t.BaseType is { IsGenericType: true } &&
-                        t.BaseType.GetGenericTypeDefinition() == typeof(ApplicationDbContext<>))
-            .ToList();
-
-        foreach (var dbContextType in dbContextTypes)
-        {
-            var addDbContextMethod = typeof(EntityFrameworkServiceCollectionExtensions)
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                .First(m => m.Name == nameof(EntityFrameworkServiceCollectionExtensions.AddDbContext)
-                            && m.IsGenericMethodDefinition
-                            && m.GetParameters().Any(p =>
-                                p.ParameterType == typeof(Action<IServiceProvider, DbContextOptionsBuilder>)));
-
-            var genericMethod = addDbContextMethod.MakeGenericMethod(dbContextType);
-
-            genericMethod.Invoke(
-                null,
-                new object?[]
-                {
-                    services,
-                    Postgres.StandardOptions(configuration),
-                    null,
-                    null
-                });
-
-            var uowInterfaces = dbContextType.GetInterfaces()
-                .Where(i => i != typeof(IBaseUnitOfWork) &&
-                            typeof(IBaseUnitOfWork).IsAssignableFrom(i))
-                .ToList();
-
-            foreach (var uowInterface in uowInterfaces)
-            {
-                services.AddScoped(uowInterface, sp => sp.GetRequiredService(dbContextType));
-            }
-        }
-
-        return services;
     }
 
     private sealed class ModuleType
