@@ -1,4 +1,6 @@
-﻿namespace ModuleA;
+﻿using Contract.ModuleRegister;
+
+namespace ModuleA;
 
 public class ModuleRegister : IModule
 {

@@ -1,4 +1,6 @@
 ﻿
+using Contract.ModuleRegister;
+
 namespace WebHost;
 
 public class ModuleRegister : IModule

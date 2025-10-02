@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace Contract;
+namespace Contract.ModuleRegister;
 
 public interface IModule
 {

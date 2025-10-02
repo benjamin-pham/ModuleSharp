@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Contract.ModuleRegister;
+using Microsoft.AspNetCore.Builder;
 
 namespace Contract;
 

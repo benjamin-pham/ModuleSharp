@@ -8,7 +8,7 @@ using Microsoft.Extensions.Options;
 using System.Reflection;
 using System.Runtime.Loader;
 
-namespace Contract;
+namespace Contract.ModuleRegister;
 
 public static class ModuleLoader
 {

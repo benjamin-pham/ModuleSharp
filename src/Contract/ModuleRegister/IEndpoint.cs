@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 
-namespace Contract;
+namespace Contract.ModuleRegister;
 
 public interface IEndpoint
 {

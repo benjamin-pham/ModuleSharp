@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
-namespace Contract;
+namespace Contract.ModuleRegister;
 
 internal class ModuleRoutePrefixConvention : IApplicationModelConvention
 {

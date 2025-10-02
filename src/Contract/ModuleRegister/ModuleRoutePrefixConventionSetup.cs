@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace Contract;
+namespace Contract.ModuleRegister;
 
 internal class ModuleRoutePrefixConventionSetup : IConfigureOptions<MvcOptions>
 {
