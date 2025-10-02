@@ -1,14 +1,15 @@
 ﻿using Contract.ModuleRegister;
 
-namespace ModuleA;
+namespace Module.Catalog;
 
 public class ModuleRegister : IModule
 {
-    public string EndpointPrefix => "module-a";
+    public string EndpointPrefix => "catalog";
 
-    public string[] ModuleSettingFiles => ["appsettings.ModuleA.json"];
+    public string[] ModuleSettingFiles => ["appsettings.Catalog.json"];
 
     public void ConfigureServices(WebApplicationBuilder builder)
     {
+
     }
 }

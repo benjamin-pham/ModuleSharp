@@ -12,8 +12,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Contract\Contract.csproj" />
-    <ProjectReference Include="..\Modules\ModuleA\ModuleA.csproj" />
-    <ProjectReference Include="..\Modules\ModuleB\ModuleB.csproj" />
+    <ProjectReference Include="..\Modules\Catalog\Module.Catalog\Module.Catalog.csproj" />
+    <ProjectReference Include="..\Modules\ShoppingCart\Module.ShoppingCart\Module.ShoppingCart.csproj" />
   </ItemGroup>
 
 </Project>

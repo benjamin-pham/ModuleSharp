@@ -4,11 +4,17 @@
     <File Path=".gitignore" />
   </Folder>
   <Folder Name="/src/">
+    <Project Path="src/Contract.Tests/Contract.Tests.csproj" Id="456a1f7a-5ac8-4e35-8f94-4cfedc9257a5" />
     <Project Path="src/Contract/Contract.csproj" />
     <Project Path="src/WebHost/WebHost.csproj" />
   </Folder>
-  <Folder Name="/src/Modules/">
-    <Project Path="src/Modules/ModuleA/ModuleA.csproj" />
-    <Project Path="src/Modules/ModuleB/ModuleB.csproj" />
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Module.Catalog.Tests/Module.Catalog.Tests.csproj" Id="ca8a38b6-69b1-43d2-bb1d-b277c3e925df" />
+    <Project Path="src/Modules/Catalog/Module.Catalog/Module.Catalog.csproj" Id="31ce2335-d512-4868-b3f2-bd6fae1ebe56" />
+  </Folder>
+  <Folder Name="/src/Modules/ShoppingCart/">
+    <Project Path="src/Modules/ShoppingCart/Module.ShoppingCart.Tests/Module.ShoppingCart.Tests.csproj" Id="5bdb90b3-fd5b-4f2d-9622-88c7babb77af" />
+    <Project Path="src/Modules/ShoppingCart/Module.ShoppingCart/Module.ShoppingCart.csproj" Id="35ee5c86-6a24-4edd-a1ea-408aed682660" />
   </Folder>
 </Solution>

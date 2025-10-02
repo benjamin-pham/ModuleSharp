@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -6,18 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
-<ItemGroup>
-	<None Update="appsettings.ModuleA.json">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
-</ItemGroup>
+    <ItemGroup>
+        <None Update="appsettings.Catalog.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.20" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Contract\Contract.csproj" />
+    <ProjectReference Include="..\..\..\Contract\Contract.csproj" />
   </ItemGroup>
 
 </Project>
