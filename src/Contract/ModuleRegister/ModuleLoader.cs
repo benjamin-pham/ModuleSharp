@@ -36,6 +36,8 @@ public static class ModuleLoader
         });
 
         builder.Services.AddApplicationDbContexts(builder.Configuration, moduleTypes);
+
+        builder.Services.AddWithAttributes(moduleTypes);
     }
 
     public static void UseHostConfigure(this WebApplication app)
