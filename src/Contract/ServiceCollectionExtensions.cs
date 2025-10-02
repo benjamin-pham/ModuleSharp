@@ -24,7 +24,7 @@ public static class ServiceCollectionExtensions
             if (serviceTypes.Length == 0)
             {
                 // Không có interface nào thì đăng ký luôn class chính
-                serviceTypes = new[] { type };
+                serviceTypes = [type];
             }
 
             foreach (var serviceType in serviceTypes)
