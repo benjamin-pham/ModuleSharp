@@ -3,11 +3,11 @@
 namespace Contract.Utilities;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-public class InjectAttribute : Attribute
+public class ServiceRegisterAttribute : Attribute
 {
     public ServiceLifetime Lifetime { get; }
 
-    public InjectAttribute(ServiceLifetime lifetime)
+    public ServiceRegisterAttribute(ServiceLifetime lifetime)
     {
         Lifetime = lifetime;
     }

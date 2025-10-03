@@ -5,7 +5,7 @@ using Module.Catalog.Infrastructure.Database;
 
 namespace Module.Catalog.Infrastructure.Repositories;
 
-[Inject(ServiceLifetime.Scoped)]
+[ServiceRegister(ServiceLifetime.Scoped)]
 public class ProductRepository : BaseRepository<Product, Guid, CatalogDbContext>, IProductRepository
 {
     public ProductRepository(CatalogDbContext dbContext) : base(dbContext)

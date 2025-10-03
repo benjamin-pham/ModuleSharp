@@ -16,11 +16,11 @@ public static class ServiceCollectionExtensions
         var types = moduleManager.AppModules.SelectMany(m => m.AssemblyTypes)
             .Where(t => t.IsClass
                      && !t.IsAbstract
-                     && t.GetCustomAttribute<InjectAttribute>() != null);
+                     && t.GetCustomAttribute<ServiceRegisterAttribute>() != null);
 
         foreach (var type in types)
         {
-            var attr = type.GetCustomAttribute<InjectAttribute>();
+            var attr = type.GetCustomAttribute<ServiceRegisterAttribute>();
 
             var allInterfaces = type.GetInterfaces();
 
