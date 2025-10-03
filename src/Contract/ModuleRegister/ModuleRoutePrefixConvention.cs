@@ -1,36 +1,30 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Contract.ModuleRegister;
 
 internal class ModuleRoutePrefixConvention : IApplicationModelConvention
 {
-    private readonly Dictionary<Assembly, string> _endpointPrefixes;
+    private readonly ModuleManager _moduleManager;
 
     public ModuleRoutePrefixConvention(ModuleManager moduleManager)
     {
-        _endpointPrefixes = moduleManager.AppModules
-            .Distinct()
-            .ToDictionary(
-                t => t.Assembly,
-                t =>
-                {
-                    return t.Instance.EndpointPrefix;
-                });
+        _moduleManager = moduleManager;
     }
 
     public void Apply(ApplicationModel application)
     {
         foreach (var controller in application.Controllers)
         {
-            if (!_endpointPrefixes.TryGetValue(controller.ControllerType.Assembly, out var prefix))
+            var appModule = _moduleManager.AppModules
+                .FirstOrDefault(m => m.Assembly == controller.ControllerType.Assembly);
+
+            if (appModule == null)
                 continue;
 
             foreach (var selector in controller.Selectors)
             {
-                var routePrefix = new AttributeRouteModel(new RouteAttribute($"api/{prefix}"));
+                var routePrefix = new AttributeRouteModel(new RouteAttribute($"api/{appModule.Instance.EndpointPrefix}"));
 
                 selector.AttributeRouteModel = selector.AttributeRouteModel != null
                     ? AttributeRouteModel.CombineAttributeRouteModel(routePrefix, selector.AttributeRouteModel)
