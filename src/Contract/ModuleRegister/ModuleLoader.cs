@@ -14,6 +14,10 @@ public static class ModuleLoader
 {
     public static void AddHostConfigureServices(this WebApplicationBuilder builder)
     {
+        var moduleManager = FindModules();
+
+        builder.Services.AddSingleton(moduleManager);
+
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
         builder.Services.AddCors();
@@ -25,16 +29,12 @@ public static class ModuleLoader
             options.LowercaseUrls = true;
         });
 
-        var moduleManager = FindModules();
-
-        builder.Services.AddSingleton(moduleManager);
+        builder.Services.AddControllers(options =>
+        {
+            options.Conventions.Add(new ModuleRoutePrefixConvention(moduleManager));
+        });
 
         builder.AddModuleServices(moduleManager);
-
-        builder.Services.AddTransient<IConfigureOptions<MvcOptions>>((serviceProvider) =>
-        {
-            return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleManager);
-        });
     }
 
     public static void UseHostConfigure(this WebApplication app)
