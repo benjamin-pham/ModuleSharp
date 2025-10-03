@@ -1,7 +1,7 @@
 ﻿using Contract.Abstractions;
 using Contract.Infrastructure.Database;
 using Contract.ModuleRegister;
-using Contract.Utilities;
+using Contract.Utilities.Attributes;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
