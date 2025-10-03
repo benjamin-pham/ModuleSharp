@@ -5,7 +5,7 @@ using Module.ShoppingCart.Infrastructure.Database;
 
 namespace Module.ShoppingCart.Infrastructure.Repositories;
 
-[ServiceRegistration(ServiceLifetime.Scoped)]
+[Inject(ServiceLifetime.Scoped)]
 public class CartRepository : BaseRepository<Cart, Guid, ShoppingCartDbContext>, ICartRepository
 {
     public CartRepository(ShoppingCartDbContext dbContext) : base(dbContext)
