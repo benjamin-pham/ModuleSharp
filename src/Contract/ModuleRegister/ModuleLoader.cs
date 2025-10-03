@@ -25,11 +25,15 @@ public static class ModuleLoader
             options.LowercaseUrls = true;
         });
 
-        var moduleTypes = builder.AddModuleServices();
+        var moduleManager = FindModules();
+
+        builder.Services.AddSingleton(moduleManager);
+
+        builder.AddModuleServices(moduleManager);
 
         builder.Services.AddTransient<IConfigureOptions<MvcOptions>>((serviceProvider) =>
         {
-            return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleTypes);
+            return new ModuleRoutePrefixConventionSetup(serviceProvider, moduleManager);
         });
     }
 
@@ -55,43 +59,30 @@ public static class ModuleLoader
         });
     }
 
-    private static List<Type> AddModuleServices(this WebApplicationBuilder builder)
+    private static void AddModuleServices(this WebApplicationBuilder builder, ModuleManager moduleManager)
     {
-        var rootPath = AppContext.BaseDirectory;
+        ConfigureModuleServices(builder, moduleManager);
 
-        var assemblies = LoadAssemblies(rootPath);
+        builder.Services.AddApplicationDbContexts(builder.Configuration, moduleManager);
 
-        var moduleTypes = FindModuleTypes(assemblies);
-
-        ConfigureModuleServices(builder, moduleTypes);
-
-        builder.Services.AddSingleton(new ModuleType(moduleTypes));
-
-        builder.Services.AddApplicationDbContexts(builder.Configuration, moduleTypes);
-
-        builder.Services.AddWithAttributes(moduleTypes);
-
-        return moduleTypes;
+        builder.Services.AddWithAttributes(moduleManager);
     }
 
     private static void MapModuleEndpoints(this WebApplication app)
     {
-        var moduleType = app.Services.GetRequiredService<ModuleType>();
-        foreach (var type in moduleType.Types)
+        var moduleManager = app.Services.GetRequiredService<ModuleManager>();
+        foreach (var module in moduleManager.AppModules)
         {
-            var module = (IModule)ActivatorUtilities.CreateInstance(app.Services, type);
             var url = $"/api";
-            if (!string.IsNullOrEmpty(module.EndpointPrefix))
+            if (!string.IsNullOrEmpty(module.Instance.EndpointPrefix))
             {
-                url += $"/{module.EndpointPrefix}";
+                url += $"/{module.Instance.EndpointPrefix}";
             }
-            var group = app.MapGroup(url).WithTags(module.EndpointPrefix);
+            var group = app.MapGroup(url).WithTags(module.Instance.EndpointPrefix);
 
-            group.MapGet("/ping", () => $"{module.EndpointPrefix} pong!").WithTags("ping module api");
+            group.MapGet("/ping", () => $"{module.Instance.EndpointPrefix} pong!").WithTags("ping module api");
 
-            var assemblyModule = type.Assembly;
-
-            var endpointTypes = assemblyModule.GetTypes()
+            var endpointTypes = module.AssemblyTypes
                 .Where(t => typeof(IEndpoint).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
                 .ToList();
 
@@ -103,13 +94,13 @@ public static class ModuleLoader
         }
     }
 
-    private static List<Assembly> LoadAssemblies(string? rootPath)
+    private static List<Assembly> LoadAssemblies()
     {
         var assemblies = new List<Assembly>(AppDomain.CurrentDomain.GetAssemblies());
 
-        if (!string.IsNullOrEmpty(rootPath))
+        if (!string.IsNullOrEmpty(AppContext.BaseDirectory))
         {
-            foreach (var dll in Directory.EnumerateFiles(rootPath, "*.dll"))
+            foreach (var dll in Directory.EnumerateFiles(AppContext.BaseDirectory, "*.dll"))
             {
                 try
                 {
@@ -123,39 +114,40 @@ public static class ModuleLoader
         return assemblies.Distinct().ToList();
     }
 
-    private static List<Type> FindModuleTypes(List<Assembly> assemblies)
+    private static ModuleManager FindModules()
     {
-        return assemblies
+        var assemblies = LoadAssemblies();
+
+        var modules = assemblies
             .SelectMany(a =>
             {
                 try { return a.GetTypes(); }
-                catch { return []; }
+                catch { return Array.Empty<Type>(); }
             })
             .Where(t => typeof(IModule).IsAssignableFrom(t) && !t.IsAbstract && !t.IsInterface)
+            .Select(t =>
+            {
+                var instance = (IModule)Activator.CreateInstance(t)!;
+                return new ModuleManager.AppModule(t, t.Assembly, instance);
+            })
             .ToList();
+
+        return new(modules);
     }
 
-    private static void ConfigureModuleServices(WebApplicationBuilder builder, List<Type> moduleTypes)
+    private static void ConfigureModuleServices(WebApplicationBuilder builder, ModuleManager moduleManager)
     {
-        foreach (var type in moduleTypes)
+        foreach (var module in moduleManager.AppModules)
         {
-            var module = (IModule)Activator.CreateInstance(type)!;
-            var moduleAssembly = type.Assembly;
-            var modulePath = Path.GetDirectoryName(moduleAssembly.Location)!;
+            var modulePath = Path.GetDirectoryName(module.Assembly.Location)!;
 
-            foreach (var moduleSettingFile in module.ModuleSettingFiles)
+            foreach (var moduleSettingFile in module.Instance.ModuleSettingFiles)
             {
                 var jsonPath = Path.Combine(modulePath, moduleSettingFile);
                 builder.Configuration.AddJsonFile(jsonPath, optional: false, reloadOnChange: true);
             }
 
-            module.ConfigureServices(builder);
+            module.Instance.ConfigureServices(builder);
         }
-    }
-
-    private sealed class ModuleType
-    {
-        public List<Type> Types { get; }
-        public ModuleType(List<Type> types) => Types = types;
     }
 }

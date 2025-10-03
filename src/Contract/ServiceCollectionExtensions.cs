@@ -1,5 +1,6 @@
 ﻿using Contract.Abstractions;
 using Contract.Infrastructure.Database;
+using Contract.ModuleRegister;
 using Contract.Utilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -10,9 +11,9 @@ namespace Contract;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddWithAttributes(this IServiceCollection services, List<Type> moduleTypes)
+    public static IServiceCollection AddWithAttributes(this IServiceCollection services, ModuleManager moduleManager)
     {
-        var types = moduleTypes.Select(x => x.Assembly).SelectMany(x => x.GetTypes())
+        var types = moduleManager.AppModules.SelectMany(m => m.AssemblyTypes)
             .Where(t => t.IsClass
                      && !t.IsAbstract
                      && t.GetCustomAttribute<ServiceRegistrationAttribute>() != null);
@@ -22,12 +23,13 @@ public static class ServiceCollectionExtensions
             var attr = type.GetCustomAttribute<ServiceRegistrationAttribute>();
 
             var allInterfaces = type.GetInterfaces();
+
             var serviceTypes = allInterfaces
                 .Where(i => !allInterfaces.Any(other => other != i && other.GetInterfaces().Contains(i)))
                 .ToArray();
+
             if (serviceTypes.Length == 0)
             {
-                // Không có interface nào thì đăng ký luôn class chính
                 serviceTypes = [type];
             }
 
@@ -43,9 +45,9 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddApplicationDbContexts(
         this IServiceCollection services,
         IConfiguration configuration,
-        List<Type> moduleTypes)
+        ModuleManager moduleManager)
     {
-        var dbContextTypes = moduleTypes.Select(x => x.Assembly).SelectMany(x => x.GetTypes())
+        var dbContextTypes = moduleManager.AppModules.SelectMany(m => m.AssemblyTypes)
             .Where(t => !t.IsAbstract && !t.IsGenericTypeDefinition)
             .Where(t => t.BaseType is { IsGenericType: true } &&
                         t.BaseType.GetGenericTypeDefinition() == typeof(ApplicationDbContext<>))

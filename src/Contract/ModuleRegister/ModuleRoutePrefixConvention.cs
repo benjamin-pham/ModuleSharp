@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Contract.ModuleRegister;
@@ -10,18 +9,17 @@ internal class ModuleRoutePrefixConvention : IApplicationModelConvention
     private readonly IServiceProvider _serviceProvider;
     private readonly Dictionary<Assembly, string> _endpointPrefixes;
 
-    public ModuleRoutePrefixConvention(IServiceProvider serviceProvider, IEnumerable<Type> moduleTypes)
+    public ModuleRoutePrefixConvention(IServiceProvider serviceProvider, ModuleManager moduleManager)
     {
         _serviceProvider = serviceProvider;
 
-        _endpointPrefixes = moduleTypes
+        _endpointPrefixes = moduleManager.AppModules
             .Distinct()
             .ToDictionary(
                 t => t.Assembly,
                 t =>
                 {
-                    var instance = (IModule)ActivatorUtilities.CreateInstance(_serviceProvider, t);
-                    return instance.EndpointPrefix;
+                    return t.Instance.EndpointPrefix;
                 });
     }
 

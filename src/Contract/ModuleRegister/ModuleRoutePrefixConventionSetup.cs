@@ -6,15 +6,15 @@ namespace Contract.ModuleRegister;
 internal class ModuleRoutePrefixConventionSetup : IConfigureOptions<MvcOptions>
 {
     private readonly IServiceProvider _serviceProvider;
-    private readonly List<Type> _moduleTypes;
-    public ModuleRoutePrefixConventionSetup(IServiceProvider serviceProvider, List<Type> moduleTypes)
+    private readonly ModuleManager _moduleManager;
+    public ModuleRoutePrefixConventionSetup(IServiceProvider serviceProvider, ModuleManager moduleManager)
     {
         _serviceProvider = serviceProvider;
-        _moduleTypes = moduleTypes;
+        _moduleManager = moduleManager;
     }
 
     public void Configure(MvcOptions options)
     {
-        options.Conventions.Insert(0, new ModuleRoutePrefixConvention(_serviceProvider, _moduleTypes));
+        options.Conventions.Insert(0, new ModuleRoutePrefixConvention(_serviceProvider, _moduleManager));
     }
 }
