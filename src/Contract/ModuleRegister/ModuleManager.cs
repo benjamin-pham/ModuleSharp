@@ -12,9 +12,8 @@ public class ModuleManager(List<ModuleManager.AppModule> appModules)
         return this;
     }
 
-    public sealed class AppModule(Type type, Assembly assembly, IModule instance)
+    public sealed class AppModule(Assembly assembly, IModule instance)
     {
-        public Type TypeOfAssembly { get; } = type;
         public Assembly Assembly { get; } = assembly;
         public IModule Instance { get; } = instance;
         public Type[] AssemblyTypes { get; } = assembly.GetTypes();

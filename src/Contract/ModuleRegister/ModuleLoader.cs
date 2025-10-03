@@ -126,7 +126,7 @@ public static class ModuleLoader
             .Select(t =>
             {
                 var instance = (IModule)Activator.CreateInstance(t)!;
-                return new ModuleManager.AppModule(t, t.Assembly, instance);
+                return new ModuleManager.AppModule(t.Assembly, instance);
             })
             .ToList();
 
