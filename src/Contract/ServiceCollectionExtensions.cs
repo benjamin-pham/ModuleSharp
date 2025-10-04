@@ -1,4 +1,4 @@
-﻿using Contract.Abstractions;
+﻿using Contract.Abstractions.Data;
 using Contract.Infrastructure.Database;
 using Contract.ModuleRegister;
 using Contract.Utilities.Attributes;

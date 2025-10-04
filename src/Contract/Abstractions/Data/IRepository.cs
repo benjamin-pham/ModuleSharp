@@ -1,4 +1,4 @@
-﻿namespace Contract.Abstractions;
+﻿namespace Contract.Abstractions.Data;
 
 public interface IRepository<TEntity, TKey> where TEntity : Entity<TKey>
 {

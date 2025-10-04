@@ -1,6 +1,6 @@
 ﻿namespace Contract.Abstractions;
 
-public class Entity<TKey>
+public abstract class Entity<TKey>
 {
-    public required TKey Id { get; set; }
+    public TKey Id { get; set; } = default!;
 }

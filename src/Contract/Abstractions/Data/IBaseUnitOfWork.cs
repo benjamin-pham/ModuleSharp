@@ -1,4 +1,4 @@
-﻿namespace Contract.Abstractions;
+﻿namespace Contract.Abstractions.Data;
 
 public interface IBaseUnitOfWork
 {

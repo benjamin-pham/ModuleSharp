@@ -1,4 +1,4 @@
-﻿using Contract.Abstractions;
+﻿using Contract.Abstractions.Data;
 
 namespace Module.ShoppingCart.Domain.Carts;
 
