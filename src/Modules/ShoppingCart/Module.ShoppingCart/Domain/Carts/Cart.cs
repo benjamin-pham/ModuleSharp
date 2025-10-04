@@ -2,6 +2,6 @@
 
 namespace Module.ShoppingCart.Domain.Carts;
 
-public class Cart : Entity<Guid>
+public class Cart : Entity
 {
 }
