@@ -1,0 +1,1 @@
+await Startup.Run(args);

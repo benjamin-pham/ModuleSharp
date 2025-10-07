@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+    <ItemGroup>
+        <None Update="appsettings.ShoppingCart.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>    
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Contract\Contract.csproj" />
+    </ItemGroup>    
+    <ItemGroup>
+      <Folder Include="Features\" />
+    </ItemGroup>
+</Project>

@@ -1,0 +1,24 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Contract.Tests/Contract.Tests.csproj" Id="456a1f7a-5ac8-4e35-8f94-4cfedc9257a5" />
+    <Project Path="src/Contract/Contract.csproj" />
+    <Project Path="src/IntegrationEvents/IntegrationEvents.csproj" Id="4a264814-2015-4f94-b16e-1132207567f1" />
+    <Project Path="src/Orchestration/Orchestration.csproj" Id="a6703fa1-8838-4de5-990e-f4317fee5e75" />
+    <Project Path="src/WebHost/WebHost.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Catalog/">
+    <Project Path="src/Modules/Catalog/Module.Catalog.Tests/Module.Catalog.Tests.csproj" Id="ca8a38b6-69b1-43d2-bb1d-b277c3e925df" />
+    <Project Path="src/Modules/Catalog/Module.Catalog/Module.Catalog.csproj" Id="31ce2335-d512-4868-b3f2-bd6fae1ebe56" />
+  </Folder>
+  <Folder Name="/src/Modules/ShoppingCart/">
+    <Project Path="src/Modules/ShoppingCart/Module.ShoppingCart.Tests/Module.ShoppingCart.Tests.csproj" Id="5bdb90b3-fd5b-4f2d-9622-88c7babb77af" />
+    <Project Path="src/Modules/ShoppingCart/Module.ShoppingCart/Module.ShoppingCart.csproj" Id="35ee5c86-6a24-4edd-a1ea-408aed682660" />
+  </Folder>
+</Solution>
