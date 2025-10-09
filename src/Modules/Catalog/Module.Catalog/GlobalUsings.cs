@@ -1,1 +1,1 @@
-﻿global using global::Contract;
+﻿global using Contract;

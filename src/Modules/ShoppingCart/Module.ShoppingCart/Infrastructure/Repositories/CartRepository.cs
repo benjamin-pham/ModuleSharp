@@ -1,5 +1,6 @@
 ﻿using Contract.Infrastructure.Database;
 using Contract.Utilities.Attributes;
+
 using Module.ShoppingCart.Domain.Carts;
 using Module.ShoppingCart.Infrastructure.Database;
 

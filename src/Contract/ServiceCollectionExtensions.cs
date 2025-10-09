@@ -1,11 +1,13 @@
-﻿using Contract.Abstractions.Data;
+﻿using System.Reflection;
+
+using Contract.Abstractions.Data;
 using Contract.Infrastructure.Database;
 using Contract.ModuleRegister;
 using Contract.Utilities.Attributes;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 
 namespace Contract;
 

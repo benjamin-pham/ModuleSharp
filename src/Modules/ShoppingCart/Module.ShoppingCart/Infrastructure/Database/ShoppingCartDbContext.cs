@@ -1,4 +1,5 @@
 ﻿using Contract.Infrastructure.Database;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Module.ShoppingCart.Infrastructure.Database;

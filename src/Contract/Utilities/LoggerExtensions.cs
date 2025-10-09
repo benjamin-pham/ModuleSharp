@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+
+using Microsoft.Extensions.Logging;
 
 namespace Contract.Utilities;
 

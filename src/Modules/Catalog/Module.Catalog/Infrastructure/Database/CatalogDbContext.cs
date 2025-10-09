@@ -1,5 +1,7 @@
 ﻿using Contract.Infrastructure.Database;
+
 using Microsoft.EntityFrameworkCore;
+
 using Module.Catalog.Abstractions;
 
 namespace Module.Catalog.Infrastructure.Database;

@@ -1,6 +1,4 @@
-﻿using System;
-namespace Contract.Abstractions;
-
+﻿namespace Contract.Abstractions;
 
 public abstract class Entity<TKey> where TKey : notnull
 {

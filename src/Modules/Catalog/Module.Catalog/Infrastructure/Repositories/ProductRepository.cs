@@ -1,5 +1,6 @@
 ﻿using Contract.Infrastructure.Database;
 using Contract.Utilities.Attributes;
+
 using Module.Catalog.Domain.Products;
 using Module.Catalog.Infrastructure.Database;
 

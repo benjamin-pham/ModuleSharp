@@ -1,5 +1,6 @@
 ﻿using Contract.Abstractions;
 using Contract.Abstractions.Data;
+
 using Microsoft.EntityFrameworkCore;
 
 namespace Contract.Infrastructure.Database;
