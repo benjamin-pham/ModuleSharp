@@ -3,5 +3,8 @@
 	"editor.formatOnSave": true,
 	"editor.insertSpaces": false,
 	"editor.tabSize": 4,
-	"files.trimTrailingWhitespace": true
+	"files.trimTrailingWhitespace": true,
+	"cSpell.words": [
+		"appsettings"
+	]
 }

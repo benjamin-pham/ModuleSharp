@@ -8,5 +8,7 @@ public class ModuleRegister : IModule
 	public string[] ModuleSettingFiles => ["appsettings.Catalog.json"];
 
 	public void ConfigureServices(WebApplicationBuilder builder)
-	{ }
+	{
+
+	}
 }
